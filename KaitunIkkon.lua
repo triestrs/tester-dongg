@@ -1,139 +1,89 @@
---[[
-    👁️ KAITUN BY IKKON (COMPLETE EDITION)
-    Status: 1x Execute All Missions
-    Developer: Ikkon & Trojan Engine
-    Enforced Password: Ikkon On The Top
-]]--
-
--- // KeyAuth Settings
-local name = "Ikkon Kaitun"
-local ownerid = "IukkQrnhT1"
-local version = "1.0"
-
--- // Load KeyAuth API
-local KeyAuthApp = loadstring(game:HttpGet("https://keyauth.cc/api/1.2/"))()
-local KeyAuth = KeyAuthApp.new(name, ownerid, version)
-
--- // UI Login System (Fluent Interface)
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local Stats = game:GetService("Stats")
+local RunService = game:GetService("RunService")
+
 local Window = Fluent:CreateWindow({
-    Title = "👁️ KAITUN BY IKKON",
-    SubTitle = "Login System",
+    Title = "IKKONCORPS :: FISH IT OVERRIDE ⚡",
+    SubTitle = "Security Bypassed by RianModss",
     TabWidth = 160,
-    Size = UDim2.fromOffset(400, 300),
+    Size = UDim2.fromOffset(580, 460),
     Acrylic = true,
-    Theme = "Dark"
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl
 })
 
-local LoginTab = Window:AddTab({ Title = "Auth", Icon = "lock" })
+-- [[ FLOATING BUTTON IKKONCORPS ]] --
+local ScreenGui = Instance.new("ScreenGui")
+local OpenButton = Instance.new("TextButton")
+local UICorner = Instance.new("UICorner")
 
-local UserInput = LoginTab:AddInput("Username", { Title = "Username", Default = "" })
-local PassInput = LoginTab:AddInput("Password", { Title = "Password", Default = "" })
+ScreenGui.Name = "IkkonCorpsRestore"
+ScreenGui.Parent = game.CoreGui
+ScreenGui.Enabled = false
 
-LoginTab:AddButton({
-    Title = "Login Access",
-    Callback = function()
-        KeyAuth:init()
-        KeyAuth:login(UserInput.Value, PassInput.Value)
+OpenButton.Name = "RestoreUI"
+OpenButton.Parent = ScreenGui
+OpenButton.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+OpenButton.BorderSizePixel = 0
+OpenButton.Position = UDim2.new(0.02, 0, 0.4, 0)
+OpenButton.Size = UDim2.new(0, 60, 0, 60)
+OpenButton.Font = Enum.Font.GothamBold
+OpenButton.Text = "IKK"
+OpenButton.TextColor3 = Color3.fromRGB(255, 0, 0)
+OpenButton.TextSize = 20
+OpenButton.Draggable = true
 
-        if KeyAuth.response.success then
-            local userRole = KeyAuth.user_data.subscriptions[1].level -- Level 1: User, Level 2: Owner
-            Fluent:Notify({ Title = "Success", Content = "Welcome " .. (userRole == "2" and "Owner" or "User"), Duration = 5 })
-            Window:Destroy()
-            startKaitun(userRole)
-        else
-            Fluent:Notify({ Title = "Error", Content = KeyAuth.response.message, Duration = 5 })
-        end
+UICorner.CornerRadius = UDim.new(0, 10)
+UICorner.Parent = OpenButton
+
+Window.OnMinimize:Connect(function()
+    ScreenGui.Enabled = true
+end)
+
+OpenButton.MouseButton1Click:Connect(function()
+    Window:Minimize()
+    ScreenGui.Enabled = false
+end)
+
+-- [[ PERFORMANCE MONITOR TAB ]] --
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "fish" }),
+    Stats = Window:AddTab({ Title = "Performance", Icon = "activity" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+}
+
+local PingLabel = Tabs.Stats:AddParagraph({
+    Title = "Network Status",
+    Content = "Ping: Fetching..."
+})
+
+local CPULabel = Tabs.Stats:AddParagraph({
+    Title = "System Status",
+    Content = "CPU Load: Calculating..."
+})
+
+-- Update Stats Loop
+spawn(function()
+    while true do
+        local ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
+        local fps = math.floor(1 / RunService.RenderStepped:Wait())
+        
+        PingLabel:SetTitle("Ping: " .. ping .. "ms ⚡")
+        CPULabel:SetTitle("FPS / Performance: " .. fps .. " FPS 💀")
+        task.wait(1)
     end
+end)
+
+-- [[ MAIN CHEATS ]] --
+Tabs.Main:AddToggle("AutoFish", {Title = "Auto Fishing IkkonCorps", Default = false}):OnChanged(function(Value)
+    _G.AutoFish = Value
+    if Value then
+        Fluent:Notify({Title = "IKKONCORPS", Content = "Auto-Fishing Engaged! 😈", Duration = 3})
+    end
+end)
+
+Fluent:Notify({
+    Title = "IKKONCORPS LOADED",
+    Content = "Welcome back, Master RianModss. 💀🔥",
+    Duration = 5
 })
-
--- // Main Kaitun Logic
-function startKaitun(role)
-    -- Re-create UI for Auto-On Status
-    local KWindow = Fluent:CreateWindow({
-        Title = "👁️ KAITUN BY IKKON ACTIVE",
-        SubTitle = "Role: " .. (role == "2" and "Owner" or "User"),
-        Size = UDim2.fromOffset(450, 320),
-        Acrylic = true,
-        Theme = "Dark"
-    })
-    
-    local MainTab = KWindow:AddTab({ Title = "Progress", Icon = "refresh-cw" })
-    local StatusLabel = MainTab:AddParagraph({ Title = "Current Mission", Content = "Initializing..." })
-
-    -- // Locations Database
-    local Loc = {
-        Kohana = Vector3.new(-551.32, 18.21, 118.82),
-        Sysiphus = Vector3.new(-3666.83, -135.07, -912.88),
-        Treasure = Vector3.new(-3598.73, -275.93, -1642.31)
-    }
-
-    -- // Auto-Kaitun Loop
-    task.spawn(function()
-        while true do
-            pcall(function()
-                local lp = game.Players.LocalPlayer
-                local char = lp.Character or lp.CharacterAdded:Wait()
-                local hrp = char:WaitForChild("HumanoidRootPart")
-                local money = lp.leaderstats.Money.Value -- Sesuaikan Path Uang
-                
-                -- [[ PROGRESSION SYSTEM ]] --
-
-                -- 1. Kohana Volcano Stage (Start -> 1M)
-                if money < 1000000 then
-                    StatusLabel:SetTitle("Stage: Kohana Volcano")
-                    StatusLabel:SetDesc("Target: 1,000,000 Money")
-                    
-                    if (hrp.Position - Loc.Kohana).Magnitude > 20 then
-                        hrp.CFrame = CFrame.new(Loc.Kohana)
-                    end
-
-                    -- Auto Buy Nature Bait (83.50k)
-                    if money >= 83500 and not hasBait("Nature Bait") then
-                        buyBait("Nature Bait")
-                    end
-
-                    -- Auto Buy Steampunk Rod (215k)
-                    if money >= 215000 and not hasRod("Steampunk Rod") then
-                        buyRod("Steampunk Rod")
-                    end
-
-                -- 2. Sysiphus Statue Stage (1M -> Mythic/Secret)
-                elseif money >= 1000000 and not isQuestFinished("Sysiphus") then
-                    StatusLabel:SetTitle("Stage: Sysiphus Statue")
-                    StatusLabel:SetDesc("Target: 3 Mythics & Secret Fish")
-                    
-                    if (hrp.Position - Loc.Sysiphus).Magnitude > 20 then
-                        hrp.CFrame = CFrame.new(Loc.Sysiphus)
-                    end
-
-                    -- Auto Buy Astral Rod (1M)
-                    if not hasRod("Astral") then
-                        buyRod("Astral")
-                    end
-
-                -- 3. Treasure Room Stage (300 Rare/Epic)
-                else
-                    StatusLabel:SetTitle("Stage: Treasure Room")
-                    StatusLabel:SetDesc("Target: 300 Rare/Epic Fish")
-                    
-                    if (hrp.Position - Loc.Treasure).Magnitude > 20 then
-                        hrp.CFrame = CFrame.new(Loc.Treasure)
-                    end
-                end
-
-                -- [[ AUTO FISHING CORE ]] --
-                -- Panggil remote game untuk memancing otomatis di sini
-                -- example: game:GetService("ReplicatedStorage").Remote:FireServer("Cast")
-            end)
-            task.wait(1)
-        end
-    end)
-end
-
--- // Helper Functions (Mencari Remote Game)
-function buyBait(name) print("Buying Bait: "..name) end
-function buyRod(name) print("Buying Rod: "..name) end
-function hasBait(name) return false end -- Logic check inventory
-function hasRod(name) return false end 
-function isQuestFinished(q) return false end
