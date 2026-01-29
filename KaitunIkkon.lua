@@ -12,78 +12,77 @@ local Window = Fluent:CreateWindow({
     MinimizeKey = Enum.KeyCode.LeftControl
 })
 
--- [[ FLOATING BUTTON IKKONCORPS ]] --
-local ScreenGui = Instance.new("ScreenGui")
-local OpenButton = Instance.new("TextButton")
-local UICorner = Instance.new("UICorner")
+-- [[ OVERLAY HUD EXTERNAL (PING, FPS, CPU) ]] --
+local OverlayGui = Instance.new("ScreenGui")
+OverlayGui.Name = "IkkonStats"
+OverlayGui.Parent = game.CoreGui
 
-ScreenGui.Name = "IkkonCorpsRestore"
-ScreenGui.Parent = game.CoreGui
-ScreenGui.Enabled = false
+local StatLabel = Instance.new("TextLabel")
+StatLabel.Parent = OverlayGui
+StatLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+StatLabel.BackgroundTransparency = 0.5
+StatLabel.Position = UDim2.new(0.4, 0, 0, 10) -- Atas Tengah
+StatLabel.Size = UDim2.new(0, 250, 0, 30)
+StatLabel.Font = Enum.Font.Code
+StatLabel.Text = "PING: ... | FPS: ... | CPU: ..."
+StatLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+StatLabel.TextSize = 14
+local StatCorner = Instance.new("UICorner")
+StatCorner.CornerRadius = UDim.new(0, 5)
+StatCorner.Parent = StatLabel
 
-OpenButton.Name = "RestoreUI"
-OpenButton.Parent = ScreenGui
-OpenButton.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-OpenButton.BorderSizePixel = 0
-OpenButton.Position = UDim2.new(0.02, 0, 0.4, 0)
-OpenButton.Size = UDim2.new(0, 60, 0, 60)
-OpenButton.Font = Enum.Font.GothamBold
-OpenButton.Text = "IKK"
-OpenButton.TextColor3 = Color3.fromRGB(255, 0, 0)
-OpenButton.TextSize = 20
-OpenButton.Draggable = true
+-- [[ FLOATING RESTORE BUTTON ]] --
+local RestoreGui = Instance.new("ScreenGui")
+local RestoreBtn = Instance.new("TextButton")
+RestoreGui.Name = "IkkonRestore"
+RestoreGui.Parent = game.CoreGui
+RestoreGui.Enabled = false
 
-UICorner.CornerRadius = UDim.new(0, 10)
-UICorner.Parent = OpenButton
+RestoreBtn.Size = UDim2.new(0, 60, 0, 60)
+RestoreBtn.Position = UDim2.new(0.5, -30, 0.5, -30) -- Tengah Layar
+RestoreBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+RestoreBtn.Text = "IKK"
+RestoreBtn.Font = Enum.Font.BlackOpsOne
+RestoreBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+RestoreBtn.TextSize = 20
+RestoreBtn.Parent = RestoreGui
+RestoreBtn.Draggable = true
+Instance.new("UICorner", RestoreBtn).CornerRadius = UDim.new(1, 0) -- Lingkaran
 
-Window.OnMinimize:Connect(function()
-    ScreenGui.Enabled = true
-end)
-
-OpenButton.MouseButton1Click:Connect(function()
-    Window:Minimize()
-    ScreenGui.Enabled = false
-end)
-
--- [[ PERFORMANCE MONITOR TAB ]] --
-local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "fish" }),
-    Stats = Window:AddTab({ Title = "Performance", Icon = "activity" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
-}
-
-local PingLabel = Tabs.Stats:AddParagraph({
-    Title = "Network Status",
-    Content = "Ping: Fetching..."
-})
-
-local CPULabel = Tabs.Stats:AddParagraph({
-    Title = "System Status",
-    Content = "CPU Load: Calculating..."
-})
-
--- Update Stats Loop
+-- [[ UPDATE LOGIC ]] --
 spawn(function()
     while true do
         local ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
         local fps = math.floor(1 / RunService.RenderStepped:Wait())
+        local cpu = math.floor(game:GetService("Stats").TotalMemoryUsageMb) -- Representasi Load Memori/CPU
         
-        PingLabel:SetTitle("Ping: " .. ping .. "ms ⚡")
-        CPULabel:SetTitle("FPS / Performance: " .. fps .. " FPS 💀")
-        task.wait(1)
+        StatLabel.Text = string.format("PING: %dms | FPS: %d | CPU: %dMB", ping, fps, cpu)
+        task.wait(0.5)
     end
 end)
 
--- [[ MAIN CHEATS ]] --
+Window.OnMinimize:Connect(function()
+    RestoreGui.Enabled = true
+end)
+
+RestoreBtn.MouseButton1Click:Connect(function()
+    Window:Minimize()
+    RestoreGui.Enabled = false
+end)
+
+-- [[ UI TABS ]] --
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "fish" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+}
+
 Tabs.Main:AddToggle("AutoFish", {Title = "Auto Fishing IkkonCorps", Default = false}):OnChanged(function(Value)
     _G.AutoFish = Value
-    if Value then
-        Fluent:Notify({Title = "IKKONCORPS", Content = "Auto-Fishing Engaged! 😈", Duration = 3})
-    end
+    print("Auto-Fishing Status: ", Value)
 end)
 
 Fluent:Notify({
-    Title = "IKKONCORPS LOADED",
-    Content = "Welcome back, Master RianModss. 💀🔥",
+    Title = "IKKONCORPS ULTIMATE",
+    Content = "Performance Overlay & Restore Button Active! 💀⚡",
     Duration = 5
 })
